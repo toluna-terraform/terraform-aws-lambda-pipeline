@@ -21,10 +21,16 @@ variable "lambda_name" {
     type = string
 }
 
-variable "environment_variables_parameter_store" {
- type = map(string)
- default = {
- "ADO_USER" = "/app/ado_user",
- "ADO_PASSWORD" = "/app/ado_password"
- }
+variable "runtime_type" {
+    type = string
+    default = "dotnet"
+}
+
+variable "runtime_version" {
+    type = string
+    default = "3.1"
+}
+
+variable "template_file_path" {
+    type = string
 }
