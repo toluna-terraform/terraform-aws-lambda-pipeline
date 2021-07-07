@@ -1,8 +1,3 @@
-locals{
-    source_repository_url = "https://bitbucket.org/${var.source_repository}"    
-}
-
-
 module "code-pipeline" {
   source  = "toluna-terraform/code-pipeline/aws"
   version = "~>1.0.1"
