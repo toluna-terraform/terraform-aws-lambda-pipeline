@@ -22,7 +22,7 @@ module "code-build" {
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
   privileged_mode                       = true
   environment_variables                 = merge(var.environment_variables, { APPSPEC = templatefile("${path.module}/templates/appspec.json.tpl") }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("${path.module}/templates/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = var.s3_bucket, LAMBDA_NAME = var.lambda_name})
+  buildspec_file                        = templatefile("${path.module}/templates/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = var.s3_bucket})
   depends_on = [
     aws_s3_bucket.codepipeline_bucket,
   ]

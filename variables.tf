@@ -1,25 +1,22 @@
 variable "env_name" {
     type = string
-    default = "devops-ecs-pipe"
+    default = "devops"
 }
 
 variable "source_repository" {
     type = string
-    default = "tolunaengineering/chorus"
+    default = "tolunaengineering/responses"
 }
 
 variable "trigger_branch" {
-    type     = string
+    type = string
+    default = "pipeline-1.0.0"
  }
 
 variable "src_path" {
     type = string
     default = "service/"
 } 
-
-variable "lambda_name" {
-    type = string
-}
 
 variable "runtime_type" {
     type = string
@@ -33,4 +30,5 @@ variable "runtime_version" {
 
 variable "template_file_path" {
     type = string
+    default = "service/ResponsesService/template.yaml"
 }

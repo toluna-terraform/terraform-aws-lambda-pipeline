@@ -7,6 +7,7 @@ phases:
     commands:
       - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
       - LAMBDA_NAME="${LAMBDA_NAME}"
+      - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
   build:
     commands:
       - echo Build started on `date`
@@ -14,7 +15,7 @@ phases:
   post_build:
     commands:
       - echo $APPSPEC > appspec.json
-      - sed -i "s+<LAMBDA_NAME>+$LAMBDA_NAME+g" appspec.json
+      - sed -i "s+<RUNTIME>+$RUNTIME+g" appspec.json
 
 artifacts:
   files:
