@@ -18,6 +18,6 @@ phases:
 
 artifacts:
   files:
-    - appspec.yml
+    - appspec.ymls  
     - package.yml
   discard-paths: yes
