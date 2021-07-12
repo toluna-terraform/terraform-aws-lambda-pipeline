@@ -6,7 +6,6 @@ phases:
   pre_build:
     commands:
       - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
-      - LAMBDA_NAME="${LAMBDA_NAME}"
       - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
   build:
     commands:

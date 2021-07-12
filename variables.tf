@@ -32,3 +32,10 @@ variable "template_file_path" {
     type = string
     default = "service/ResponsesService/template.yaml"
 }
+
+variable "environment_variables" {
+ type = map(string)
+ default = {
+    "TEST_VAR" = "TEST_VAR_VALUE"
+ }
+}
