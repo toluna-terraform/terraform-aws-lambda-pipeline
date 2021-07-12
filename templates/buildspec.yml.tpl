@@ -14,7 +14,6 @@ phases:
   post_build:
     commands:
       - echo $APPSPEC > appspec.json
-      - sed -i "s+<RUNTIME>+$RUNTIME+g" appspec.json
 
 artifacts:
   files:
