@@ -30,7 +30,7 @@ variable "runtime_version" {
 
 variable "template_file_path" {
     type = string
-    default = "service/ResponsesService/template.yaml"
+    default = "service/ResponsesService"
 }
 
 variable "environment_variables" {

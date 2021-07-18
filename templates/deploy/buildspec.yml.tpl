@@ -10,13 +10,5 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - sam package --template-file "${TEMPLATE_FILE_PATH}" --output-template-file package.yml  --s3-bucket "${S3_BUCKET}"
-  post_build:
-    commands:
-      - echo $APPSPEC > appspec.json
+      - sam deploy --template-file package.yml --config-file samconfig.toml --no-confirm-changeset 
 
-artifacts:
-  files:
-    - appspec.json 
-    - package.yml
-  discard-paths: yes
