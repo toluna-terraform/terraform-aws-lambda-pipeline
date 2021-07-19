@@ -1,1 +1,1 @@
-# terraform-aws-lambda-pipeline
+# terraform-aws-sam-pipeline
