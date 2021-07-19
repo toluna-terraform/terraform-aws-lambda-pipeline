@@ -5,7 +5,7 @@ locals {
 }
 
 module "code-pipeline" {
-  source  = "./modules/lambda-code-pipeline"
+  source  = "./modules/codepipeline"
   env_name                 = var.env_name
   source_repository        = var.source_repository
   s3_bucket                = aws_s3_bucket.codepipeline_bucket.bucket
@@ -19,9 +19,9 @@ module "code-pipeline" {
 }
 
 module "package-code-build" {
-  #source  = "toluna-terraform/code-build/aws"
-  #version = "~>1.0.1"
-  source                                = "../terraform-aws-code-build"
+  source  = "toluna-terraform/code-build/aws"
+  version = "~>1.0.1"
+  #source                                = "../terraform-aws-code-build"
   codebuild_name                        = "sam-package"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
@@ -35,9 +35,9 @@ module "package-code-build" {
 }
 
 module "deploy-code-build" {
-  #source  = "toluna-terraform/code-build/aws"
-  #version = "~>1.0.1"
-  source                                = "../terraform-aws-code-build"
+  source  = "toluna-terraform/code-build/aws"
+  version = "~>1.0.1"
+  #source                                = "../terraform-aws-code-build"
   codebuild_name                        = "sam-deploy"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
