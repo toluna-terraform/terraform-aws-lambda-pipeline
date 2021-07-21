@@ -6,11 +6,13 @@ Before you start using this module, please validate you already created:
 - A connection (CodeStar connection).
 - An SSM parameter named "/infra/codepipeline/connection_arn" which contains the Connection ARN as value.
 - Add "DeploymentPreference" property for each function in your SAM template file:
+```
     Type: AWS::Serverless::Function
     Properties:
     	AutoPublishAlias: live
     	DeploymentPreference:
     		Type: Linear10PercentEvery1Minute
+```
 ## Usage
 ```
 module "sam-pipeline" {
