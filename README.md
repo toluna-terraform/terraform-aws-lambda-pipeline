@@ -10,7 +10,7 @@ Before you start using this module, please validate you already created:
 ```
 module "sam-pipeline" {
   source              = "toluna-terraform/sam-pipeline/aws"
-  version             = "~>0.0.1" // Change to the required version.
+  version             = "~>0.0.2" // Change to the required version.
   env_name            = local.environment
   source_repository   = "tolunaengineering/chorus" // ORG_NAME/REPO_NAME
   trigger_branch      = "develop" // The branch that will trigger this pipeline.
