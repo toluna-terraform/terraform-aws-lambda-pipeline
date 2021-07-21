@@ -1,5 +1,4 @@
 # terraform-aws-sam-pipeline
-# terraform-aws-code-pipeline
 Toluna [Terraform module](https://registry.terraform.io/modules/toluna-terraform/code-pipeline/aws/latest), which creates SAM pipeline (package & deploy).
 
 ## Requirements
