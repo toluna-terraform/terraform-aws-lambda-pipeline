@@ -10,10 +10,6 @@ variable "trigger_branch" {
     type = string
  }
 
-variable "src_path" {
-    type = string
-} 
-
 variable "runtime_type" {
     type = string
 }
