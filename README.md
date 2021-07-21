@@ -23,7 +23,7 @@ module "sam-pipeline" {
   trigger_branch      = local.env_vars.pipeline_branch // The branch that will trigger this pipeline.
   runtime_type        = "dotnet" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
   runtime_version     = "3.1" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
-  template_file_path  = "service/" // The path of the SAM template folder.
+  template_file_path  = "service/ResponsesService" // The path of the SAM template folder.
 }
 ```
 
