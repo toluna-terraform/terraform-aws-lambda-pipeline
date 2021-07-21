@@ -5,6 +5,7 @@ Toluna [Terraform module](https://registry.terraform.io/modules/toluna-terraform
 Before you start using this module, please validate you already created:
 - A connection (CodeStar connection).
 - An SSM parameter named "/infra/codepipeline/connection_arn" which contains the Connection ARN as value.
+- Add "samconfig.toml" file in the same folder of the SAM template.
 - Add "DeploymentPreference" property for each function in your SAM template file:
 ```
     Type: AWS::Serverless::Function
