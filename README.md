@@ -14,9 +14,8 @@ module "sam-pipeline" {
   env_name            = local.environment
   source_repository   = "tolunaengineering/chorus" // ORG_NAME/REPO_NAME
   trigger_branch      = "develop" // The branch that will trigger this pipeline.
-  src_path            = "PATH_OF_SAM_TEMPLATE_FOLDER"
-  runtime_type        = "dotnet"
-  runtime_version     = "3.1"
+  runtime_type        = "dotnet" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
+  runtime_version     = "3.1" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
   template_file_path  = "service/" // The path of the SAM template folder.
 }
 ```
