@@ -20,8 +20,7 @@ module "code-pipeline" {
 
 module "package-code-build" {
   source  = "toluna-terraform/code-build/aws"
-  version = "~>1.0.1"
-  #source                                = "../terraform-aws-code-build"
+  version = "~>1.1.0"
   codebuild_name                        = "sam-package"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
