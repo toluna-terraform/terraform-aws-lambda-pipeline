@@ -13,7 +13,7 @@ module "sam-pipeline" {
   version             = "~>0.0.2" // Change to the required version.
   env_name            = local.environment
   source_repository   = "tolunaengineering/responses" // ORG_NAME/REPO_NAME
-  trigger_branch      = "develop" // The branch that will trigger this pipeline.
+  trigger_branch      = local.env_vars.pipeline_branch // The branch that will trigger this pipeline.
   runtime_type        = "dotnet" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
   runtime_version     = "3.1" // https://docs.aws.amazon.com/codebuild/latest/userguide/runtime-versions.html
   template_file_path  = "service/" // The path of the SAM template folder.
