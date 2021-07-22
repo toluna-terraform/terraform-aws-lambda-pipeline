@@ -10,5 +10,5 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - sam deploy --template-file package.yml --config-file samconfig.toml --no-confirm-changeset 
+      - sam deploy --template-file package.yml --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset
 
