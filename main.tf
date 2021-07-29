@@ -9,7 +9,7 @@ module "code-pipeline" {
   env_name                 = var.env_name
   source_repository        = var.source_repository
   s3_bucket                = aws_s3_bucket.codepipeline_bucket.bucket
-  code_build_projects      = [module.package-code-build.attributes.name,module.deploy-code-build.attributes.name]
+  code_build_projects      = [module.build-code-build.attributes.name,module.deploy-code-build.attributes.name]
   code_deploy_applications = []
   trigger_branch           = var.trigger_branch
   trigger_events           = ["push", "merge"]
@@ -18,16 +18,16 @@ module "code-pipeline" {
   ]
 }
 
-module "package-code-build" {
+module "build-code-build" {
   source  = "toluna-terraform/code-build/aws"
   version = "~>1.1.0"
-  codebuild_name                        = "sam-package"
+  codebuild_name                        = "sam-build"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("${path.module}/templates/package/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket})
+  buildspec_file                        = templatefile("${path.module}/templates/build/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value})
   depends_on = [
     aws_s3_bucket.codepipeline_bucket,
   ]

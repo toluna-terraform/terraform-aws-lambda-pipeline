@@ -40,3 +40,11 @@ data "aws_iam_policy_document" "codedeploy_role_policy" {
     resources = ["*"]
   }
 }
+
+data "aws_ssm_parameter" "ado_password" {
+  name = "/app/ado_password"
+}
+
+data "aws_ssm_parameter" "ado_user" {
+  name = "/app/ado_user"
+}

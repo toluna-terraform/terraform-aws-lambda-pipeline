@@ -9,6 +9,6 @@ phases:
       - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
   build:
     commands:
-      - echo Build started on `date`
-      - sam deploy --template-file package.yml --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset
-
+      - cp ${TEMPLATE_FILE_PATH}/samconfig.toml ${TEMPLATE_FILE_PATH}/.aws-sam/build/
+      - cd ${TEMPLATE_FILE_PATH}/.aws-sam/build
+      - sam deploy --template-file template.yaml --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset

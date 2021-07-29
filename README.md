@@ -2,11 +2,13 @@
 Toluna [Terraform module](https://registry.terraform.io/modules/toluna-terraform/sam-pipeline/aws/latest), which creates SAM pipeline (package & deploy).
 
 ## Requirements
-Before you start using this module, please validate you already created:
-- A **connection** (CodeStar connection).
-- An ***SSM parameter*** named "/infra/codepipeline/connection_arn" which contains the Connection ARN as value.
-- Add ***samconfig.toml*** file in the same folder of the SAM template.
-- Add ***"DeploymentPreference"*** property for each function in your SAM template file:
+Before you start using this module, please validate you already have:
+- **Connection** (CodeStar connection).
+- ***SSM parameter*** named "/infra/codepipeline/connection_arn" which contains the Connection ARN as value.
+- ***SSM parameter*** named "/app/ado_user".
+- ***SSM parameter*** named "/app/ado_password".
+- ***samconfig.toml*** file in the same folder of the SAM template.
+- ***"DeploymentPreference"*** property for each function in your SAM template file:
 ```
     Type: AWS::Serverless::Function
     Properties:
