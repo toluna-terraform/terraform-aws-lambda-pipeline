@@ -34,9 +34,9 @@ resource "aws_codepipeline" "codepipeline" {
   }
 
   stage {
-    name = "SAM-Package"
+    name = "SAM-Build"
       action {
-        name             = "SAM-Package"
+        name             = "SAM-Build"
         category         = "Build"
         owner            = "AWS"
         provider         = "CodeBuild"
@@ -45,7 +45,7 @@ resource "aws_codepipeline" "codepipeline" {
         output_artifacts = ["build_output"]
 
         configuration = {
-          ProjectName = "codebuild-sam-package-${var.env_name}"
+          ProjectName = "codebuild-sam-build-${var.env_name}"
         }
 
       }
