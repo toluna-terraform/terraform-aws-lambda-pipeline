@@ -26,7 +26,7 @@ module "build-code-build" {
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("${path.module}/templates/build/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value})
+  buildspec_file                        = templatefile("${path.module}/templates/build/buildspec.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value, SLN_PATH = var.solution_file_path})
   depends_on = [
     aws_s3_bucket.codepipeline_bucket,
   ]
