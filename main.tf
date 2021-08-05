@@ -19,8 +19,7 @@ module "code-pipeline" {
 }
 
 module "build-code-build" {
-  source  = "toluna-terraform/code-build/aws"
-  version = "~>1.1.1"
+  source  = "./modules/codebuild"
   codebuild_name                        = "sam-build"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
@@ -34,8 +33,7 @@ module "build-code-build" {
 }
 
 module "deploy-code-build" {
-  source  = "toluna-terraform/code-build/aws"
-  version = "~>1.1.1"
+  source  = "./modules/codebuild"
   codebuild_name                        = "sam-deploy"
   env_name                              = var.env_name
   s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
