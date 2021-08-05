@@ -28,3 +28,7 @@ variable "environment_variables" {
     "PLATFORM" = "SAM"
  }
 }
+
+variable "solution_file_path" {
+    type = string
+}

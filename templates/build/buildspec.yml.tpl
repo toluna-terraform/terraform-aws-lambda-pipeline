@@ -13,7 +13,7 @@ phases:
       - dotnet nuget add source -n Toluna-ADO https://pkgs.dev.azure.com/Toluna/_packaging/Toluna/nuget/v3/index.json -u $ADO_USER -p $ADO_PASSWORD --store-password-in-clear-text
       - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
       - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
-      - dotnet restore /p:Configuration=Release /p:Platform="Any CPU"
+      - dotnet restore /p:Configuration=Release /p:Platform="Any CPU" ${SLN_PATH}
   build:
     commands:
       - echo Build started on `date`
