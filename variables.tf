@@ -31,5 +31,4 @@ variable "environment_variables" {
 
 variable "solution_file_path" {
     type = string
-  
 }
