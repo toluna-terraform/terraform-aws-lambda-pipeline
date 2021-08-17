@@ -35,8 +35,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
             "cloudformation:*",
             "s3:*",
             "apigateway:*",
-            "lambda:*",
-            ""
+            "lambda:*"
         ]
     resources = ["*"]
   }
