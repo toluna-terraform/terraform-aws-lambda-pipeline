@@ -1,4 +1,4 @@
-**In this folder you able to find a Buildspec.yml.tpl sample for SAM Deploy**
+### In this folder you able to find a Buildspec.yml.tpl sample for SAM Deploy
 The Buildspec.yml.tpl contains number of variables that will be replaced in the ```terraform apply``` command,.
 
 | Variable  | Value | Source | Usage | 
