@@ -1,19 +1,10 @@
 ** In this folder you able to find a Buildspec.yml.tpl sample for SAM Deploy **
+The Buildspec.yml.tpl contains number of variables that will be replaced in the ```terraform apply``` command,.
 
-```
-version: 0.2
-phases:
-  install:
-    runtime-versions:
-      "${RUNTIME_TYPE}": "${RUNTIME_VERSION}" 
-  pre_build:
-    commands:
-      - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
-      - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
-  build:
-    commands:
-      - cp ${TEMPLATE_FILE_PATH}/samconfig.toml ${TEMPLATE_FILE_PATH}/.aws-sam/build/
-      - cd ${TEMPLATE_FILE_PATH}/.aws-sam/build
-      - sam deploy --template-file template.yaml --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset
+| Variable  | Value | Source | 
+| --------- |:-------------:| :-------------:|
+| RUNTIME_TYPE | dotnet| | pipelines.tf in your repository (/terraform/app/) | 
+| RUNTIME_VERSION | 3.1 |  | pipelines.tf in your repository (/terraform/app/) | 
+| TEMPLATE_FILE_PATH | service/ | The path to the SAM template (template.yml) in your repository |
 
-```
+In this template, the RUNTIME_TYPE and RUNTIME_VERSION in use for print only.
