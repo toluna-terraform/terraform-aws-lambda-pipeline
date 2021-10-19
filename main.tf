@@ -39,7 +39,7 @@ module "deploy-code-build" {
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket})
+  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket})
   depends_on = [
     aws_s3_bucket.codepipeline_bucket,
   ]
