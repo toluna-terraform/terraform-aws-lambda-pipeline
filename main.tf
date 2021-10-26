@@ -58,6 +58,10 @@ resource "aws_s3_bucket" "codepipeline_bucket" {
 
 
 resource "null_resource" "samconfig_generation" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
   provisioner "local-exec" {
     command = "jinja2 samconfig.toml.j2 -D env=${var.env_name} -o ../../${var.template_file_path}/samconfig.toml"
   }
