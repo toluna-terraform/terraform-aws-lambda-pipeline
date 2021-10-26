@@ -59,7 +59,7 @@ resource "aws_s3_bucket" "codepipeline_bucket" {
 
 resource "null_resource" "samconfig_generation" {
   triggers = {
-    always_run = "${timestamp()}"
+    policy_sha1 = "${sha1(file("samconfig.toml.j2"))}"
   }
 
   provisioner "local-exec" {
