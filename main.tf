@@ -63,6 +63,6 @@ resource "null_resource" "samconfig_generation" {
   }
 
   provisioner "local-exec" {
-    command = "jinja2 samconfig.toml.j2 -D env=${var.env_name} -o ../../${var.template_file_path}/samconfig.toml"
+    command = "jinja2 samconfig.toml.j2 -D env=${var.env_name} app_env="development" -o ../../${var.template_file_path}/samconfig.toml"
   }
 }
