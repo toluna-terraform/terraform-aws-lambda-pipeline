@@ -29,17 +29,22 @@ module "sam-pipeline" {
   template_file_path  = "service/ResponsesService" // The path of the SAM template folder.
 }
 ```
+
 ### Samconfig template (samconfig.toml.j2)
+#### Please don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
 Every SAM project should contain a samconfig.toml.j2 file inside the terraform/app/ folder.
-This template file is a part of a solution we created for SAM developers so that they will be able to work according Git-Flow without required manual changes in Samconfig file (e.g. you don't need to change Env name / Stage name before every deployment or after every merge).
+This template file is a [samconfig.toml](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html) file with variables that should be set by Jinja, this is a part of the solution we have created for SAM developers so that they will be able to work according Git-Flow without required manual changes in Samconfig file (e.g. you don't need to change Env name / Stage name before every deployment or after every merge).
 
 ***The template content:***
+
+
+Here is an example for Quota-Service:
 ```
 version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "APP_NAME-{{env}}" // Replace APP_NAME with the relevant value (e.g. quota-service)
+stack_name = "quota-service-{{env}}" // App-name = quota-service
 s3_bucket = "s3-codepipeline-{{env}}-templatequotaservice"
 region = "us-east-1"
 capabilities = "CAPABILITY_IAM"
@@ -58,8 +63,23 @@ For example, if the pipeline of Prod env will be executed, before the deployment
 (The replacement will be happen automatically before every deployment, no action is required from your side).
 
 #### The usage in local mode
-When you work on your local environment and you would like to use a static samconfig.toml file, you can run the Jinja command locally and generate the samconfig.toml file with the env you chose.
+When you work locally and you would like to use a static samconfig.toml file, all you need to do is to select the required workspace (```terraform workspace select MYWORKSPACE```) and run ```Terraform Apply```, the Terraform-Apply command  will generate automatically the samconfig.toml file under you service folder, and will set the {{env}} value according the selected workspace.
 
-Additionally, when you run ```Terraform Apply``` locally, you'll get a samconfig.toml file (the {{env}} will be replaced with the selected workspace name).
+***For example:***
+Execution of the next commands:
+```terraform workspace select dev```
+```terraform apply```
 
-#### Please don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
+Will generate automatically a samconfig.toml file with this content:
+```
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "quota-service-dev" //
+s3_bucket = "s3-codepipeline-dev-templatequotaservice"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Stage=\"dev\" Version=\"v1\" CommitNumber=\"0\" Subnets=\"/infra/dev/private_subnets_ids\" SecurityGroups=\"/infra/dev/vpce_security_groups\""
+```
+
