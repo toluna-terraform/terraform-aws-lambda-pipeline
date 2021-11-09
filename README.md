@@ -67,8 +67,10 @@ When you work locally and you would like to use a static samconfig.toml file, al
 
 ***For example:***
 Execution of the next commands:
-```terraform workspace select dev```
-```terraform apply```
+```
+terraform workspace select dev
+terraform apply
+```
 
 Will generate automatically a samconfig.toml file with this content:
 ```
