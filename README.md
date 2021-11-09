@@ -48,9 +48,13 @@ parameter_overrides = "Stage=\"{{env}}\" Version=\"v1\" CommitNumber=\"0\" Subne
 
 #### The usage in the deployment pipeline
 Inside ```buildspec-deploy.yml.tpl``` file (under ```terraform/app/``` folder) there is a command for replacing the {{env}} with the current environment which is configured in the pipeline.
+
 ```jinja2 samconfig.toml.j2 -D env=${ENV_NAME} -o samconfig.toml```
+
 For example, if the pipeline of Prod env will be executed, before the deployment command (sam deploy) the jinja2 command will be executed like this:
+
 ```jinja2 samconfig.toml.j2 -D env=prod -o samconfig.toml```
+
 (The replacement will be happen automatically before every deployment, no action is required from your side).
 
 #### The usage in local mode
@@ -58,4 +62,4 @@ When you work on your local environment and you would like to use a static samco
 
 Additionally, when you run ```Terraform Apply``` locally, you'll get a samconfig.toml file (the {{env}} will be replaced with the selected workspace name).
 
-##### Don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
+### Don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
