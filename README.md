@@ -29,4 +29,33 @@ module "sam-pipeline" {
   template_file_path  = "service/ResponsesService" // The path of the SAM template folder.
 }
 ```
+### Samconfig template (samconfig.toml.j2)
+Every SAM project should contain a samconfig.toml.j2 file inside the terraform/app/ folder.
+This template file is a part of a solution we created for SAM developers so that they will be able to work according Git-Flow without required manual changes in Samconfig file (e.g. you don't need to change Env name / Stage name before every deployment or after every merge).
 
+***The template content:***
+```
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "APP_NAME-{{env}}" // Replace APP_NAME with the relevant value (e.g. quota-service)
+s3_bucket = "s3-codepipeline-{{env}}-templatequotaservice"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Stage=\"{{env}}\" Version=\"v1\" CommitNumber=\"0\" Subnets=\"/infra/{{env}}/private_subnets_ids\" SecurityGroups=\"/infra/{{env}}/vpce_security_groups\""
+```
+
+***The usage in the deployment pipeline***
+Inside ```buildspec-deploy.yml.tpl``` file (under ```terraform/app/``` folder) there is a command for replacing the {{env}} with the current environment which is configured in the pipeline.
+```jinja2 samconfig.toml.j2 -D env=${ENV_NAME} -o samconfig.toml```
+For example, if the pipeline of Prod env will be executed, before the deployment command (sam deploy) the jinja2 command will be executed like this:
+```jinja2 samconfig.toml.j2 -D env=prod -o samconfig.toml```
+(The replacement will be happen automatically before every deployment, no action is required from your side).
+
+***The usage in local mode***
+When you work on your local environment and you would like to use a static samconfig.toml file, you can run the Jinja command locally and generate the samconfig.toml file with the env you chose.
+
+Additionally, when you run ```Terraform Apply``` locally, you'll get a samconfig.toml file (the {{env}} will be replaced with the selected workspace name).
+
+#### Don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
