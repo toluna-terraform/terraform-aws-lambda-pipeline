@@ -63,7 +63,7 @@ For example, if the pipeline of Prod env will be executed, before the deployment
 (The replacement will be happen automatically before every deployment, no action is required from your side).
 
 #### The usage in local mode
-When you work locally and you would like to use a static samconfig.toml file, all you need to do is to select the required workspace (```terraform workspace select MYWORKSPACE```) and run ```Terraform Apply```, the Terraform-Apply command  will generate automatically the samconfig.toml file under you service folder, and will set the {{env}} value according the selected workspace.
+When you work locally and you would like to use a static samconfig.toml file, all you need to do is to select the required workspace (`terraform workspace select MYWORKSPACE`) and run `Terraform Apply`, the Terraform-Apply command  will generate automatically the samconfig.toml file under you service folder, and will set the {{env}} value according the selected workspace.
 
 ***For example:***
 Execution of the next commands:
