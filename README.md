@@ -62,4 +62,4 @@ When you work on your local environment and you would like to use a static samco
 
 Additionally, when you run ```Terraform Apply``` locally, you'll get a samconfig.toml file (the {{env}} will be replaced with the selected workspace name).
 
-### Don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
+#### Please don't forget to add the samconfig.toml file in .gitignore, to avoid uploads of static samconfig.toml to the repoisotry.
