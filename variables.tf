@@ -40,3 +40,8 @@ variable "environment_variables" {
 variable "solution_file_path" {
     type = string
 }
+
+variable "enable_coralogix_subscription" {
+    type = bool
+    default = false
+}
