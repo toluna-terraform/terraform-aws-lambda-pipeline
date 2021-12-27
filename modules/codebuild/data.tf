@@ -18,6 +18,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
             "logs:PutLogEvents",
+            "logs:PutSubscriptionFilter",
             "ssm:*",
             "cloudformation:*",
             "s3:*",
