@@ -69,7 +69,8 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
     depends_on = [
-      aws_iam_role.codepipeline_role
+      aws_iam_role.codepipeline_role,
+      aws_iam_role_policy.codepipeline_policy
     ]
   }
 
