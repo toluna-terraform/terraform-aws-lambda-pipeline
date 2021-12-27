@@ -25,9 +25,11 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
         "lambda:*",
         "iam:DetachRolePolicy",
         "iam:DeleteRolePolicy",
+        "iam:DeleteRole",
         "iam:CreateRole",
         "iam:AttachRolePolicy",
         "iam:PutRolePolicy",
+        "iam:GetRole",
         "codedeploy:CreateApplication",
         "cloudformation:*",
         "apigateway:*"
