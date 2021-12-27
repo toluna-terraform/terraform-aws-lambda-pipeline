@@ -68,16 +68,25 @@ resource "aws_codepipeline" "codepipeline" {
 
       }
     }
+    depends_on = [
+      aws_iam_role.codepipeline_role
+    ]
   }
 
 resource "aws_iam_role" "codepipeline_role" {
   name               = "${local.codepipeline_name}-role"
   assume_role_policy = data.aws_iam_policy_document.codepipeline_assume_role_policy.json
+  depends_on = [
+    data.aws_iam_policy_document.codepipeline_assume_role_policy
+  ]
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
   name   = "codepipeline_policy"
   role   = aws_iam_role.codepipeline_role.id
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
+  depends_on = [
+    data.aws_iam_policy_document.codepipeline_role_policy
+  ]
 }
 
