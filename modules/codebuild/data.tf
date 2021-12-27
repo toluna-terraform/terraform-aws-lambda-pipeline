@@ -15,21 +15,22 @@ data "aws_iam_policy_document" "codebuild_assume_role_policy" {
 data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
     actions   = [
-            "ssm:*",
-            "s3:*",
-            "logs:PutSubscriptionFilter",
-            "logs:PutLogEvents",
-            "logs:DescribeLogGroups",
-            "logs:CreateLogStream",
-            "logs:CreateLogGroup",
-            "iam:CreateRole",
-            "iam:AttachRolePolicy",
-            "iam:DetachRolePolicy",
-            "iam:DeleteRolePolicy",
-            "codedeploy:CreateApplication",
-            "lambda:*",
-            "cloudformation:*",
-            "apigateway:*"
+        "ssm:*",
+        "s3:*",
+        "logs:PutSubscriptionFilter",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:CreateLogStream",
+        "logs:CreateLogGroup",
+        "lambda:*",
+        "iam:DetachRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:CreateRole",
+        "iam:AttachRolePolicy",
+        "iam:PutRolePolicy",
+        "codedeploy:CreateApplication",
+        "cloudformation:*",
+        "apigateway:*"
         ]
     resources = ["*"]
   }
