@@ -13,5 +13,5 @@
                 -H "Content-Type: application/json" \
                 -H "Authorization: Bearer $COROLOGIX_APIKEY" \
                 -H "maskValue: false" \
-                -d "{\"timestamp\":\""$(date +%s)"\",\"name\":\"/aws/lambda/$LOG_GROUP_NAME\",\"application\":[\"${ENV_NAME}\"],\"subsystem\":[\"${APP_NAME}\"]}"
+                -d "{\"timestamp\":\""$(date +%s%N | cut -b1-13)"\",\"name\":\"/aws/lambda/$LOG_GROUP_NAME\",\"application\":[\"${ENV_NAME}\"],\"subsystem\":[\"${APP_NAME}\"]}"
     
