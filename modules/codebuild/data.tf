@@ -23,6 +23,8 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
             "logs:CreateLogStream",
             "logs:CreateLogGroup",
             "iam:CreateRole",
+            "iam:AttachRolePolicy",
+            "iam:DetachRolePolicy",
             "lambda:*",
             "cloudformation:*",
             "apigateway:*"
