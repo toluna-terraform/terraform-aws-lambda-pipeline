@@ -39,7 +39,7 @@ module "deploy-code-build" {
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
+  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/templates/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
   depends_on = [
     aws_s3_bucket.codepipeline_bucket,
   ]
