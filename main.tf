@@ -1,61 +1,40 @@
 locals {
   repository_name = split("/",var.source_repository)[1]
-  artifacts_bucket_name = "s3-codepipeline-${local.repository_name}-${var.env_name}"
+  artifacts_bucket_name = "s3-codepipeline-${local.repository_name}-${var.env_type}"
 }
 
 module "code-pipeline" {
   source  = "./modules/codepipeline"
   env_name                 = var.env_name
   source_repository        = var.source_repository
-  s3_bucket                = aws_s3_bucket.codepipeline_bucket.bucket
+  s3_bucket                = local.artifacts_bucket_name
   code_build_projects      = [module.build-code-build.attributes.name,module.deploy-code-build.attributes.name]
   code_deploy_applications = []
   trigger_branch           = var.trigger_branch
   trigger_events           = ["push", "merge"]
-  depends_on = [
-    aws_s3_bucket.codepipeline_bucket,
-  ]
 }
 
 module "build-code-build" {
   source  = "./modules/codebuild"
   codebuild_name                        = "sam-build"
   env_name                              = var.env_name
-  s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
+  s3_bucket                             = local.artifacts_bucket_name
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-build.yml.tpl",{ RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value, SLN_PATH = var.solution_file_path})
-  depends_on = [
-    aws_s3_bucket.codepipeline_bucket,
-  ]
+  buildspec_file                        = templatefile("buildspec-build.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value, SLN_PATH = var.solution_file_path})
 }
 
 module "deploy-code-build" {
   source  = "./modules/codebuild"
   codebuild_name                        = "sam-deploy"
   env_name                              = var.env_name
-  s3_bucket                             = aws_s3_bucket.codepipeline_bucket.bucket
+  s3_bucket                             = local.artifacts_bucket_name
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = aws_s3_bucket.codepipeline_bucket.bucket, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/templates/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
-  depends_on = [
-    aws_s3_bucket.codepipeline_bucket,
-  ]
+  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{ ENV_NAME = var.env_name, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/templates/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
 }
-
-
-resource "aws_s3_bucket" "codepipeline_bucket" {
- bucket = local.artifacts_bucket_name
- force_destroy = true
- acl = "private"
- tags = tomap({
-   UseWithCodeDeploy = true
-   created_by        = "terraform"
- })
-}
-
 
 resource "null_resource" "samconfig_generation" {
   triggers = {

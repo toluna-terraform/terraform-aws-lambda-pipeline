@@ -15,20 +15,18 @@ resource "aws_codepipeline" "codepipeline" {
 
   stage {
     name = "Source"
-
     action {
-      name             = "Source"
+      name             = "Download_Merged_Sources"
       category         = "Source"
       owner            = "AWS"
-      provider         = "CodeStarSourceConnection"
+      provider         = "S3"
       version          = "1"
       output_artifacts = ["source_output"]
 
       configuration = {
-        ConnectionArn        = data.aws_ssm_parameter.codepipeline_connection_arn.value
-        FullRepositoryId     = var.source_repository
-        BranchName           = var.trigger_branch
-        OutputArtifactFormat = "CODE_ZIP"
+        S3Bucket = "${var.s3_bucket}"
+        S3ObjectKey = "${var.env_name}/source_artifacts.zip" 
+        PollForSourceChanges = true
       }
     }
   }
