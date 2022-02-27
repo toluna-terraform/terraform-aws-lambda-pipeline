@@ -10,6 +10,14 @@ variable "app_name" {
     type = string
 }
 
+variable "pipeline_type" {
+    type = string
+}
+
+variable "run_integration_tests" {
+    type = bool
+}
+
 variable "aws_profile" {
   type = string
 }
