@@ -22,7 +22,7 @@ module "build-code-build" {
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-build.yml.tpl",{APP_NAME = var.app_name, ENV_TYPE = var.env_type, ENV_NAME = var.env_name, PIPELINE_TYPE = var.pipeline_type, HOOKS = var.run_integration_tests, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value, SLN_PATH = var.solution_file_path})
+  buildspec_file                        = templatefile("${path.module}/templates/buildspec-build.yml.tpl",{APP_NAME = var.app_name, ENV_TYPE = var.env_type, ENV_NAME = var.env_name, PIPELINE_TYPE = var.pipeline_type, RUN_TESTS = var.run_integration_tests, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name,ADO_USER = data.aws_ssm_parameter.ado_user.value, ADO_PASSWORD = data.aws_ssm_parameter.ado_password.value, SLN_PATH = var.solution_file_path})
 }
 
 module "deploy-code-build" {
@@ -33,7 +33,7 @@ module "deploy-code-build" {
   privileged_mode                       = true
   environment_variables_parameter_store = {}
   environment_variables                 = merge(var.environment_variables, { APPSPEC = "" }) //TODO: try to replace with file
-  buildspec_file                        = templatefile("buildspec-deploy.yml.tpl",{APP_NAME = var.app_name,  ENV_TYPE = var.env_type, ENV_NAME = var.env_name, PIPELINE_TYPE = var.pipeline_type, HOOKS = var.run_integration_tests, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/templates/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
+  buildspec_file                        = templatefile("${path.module}/templates/buildspec-deploy.yml.tpl",{APP_NAME = var.app_name, FROM_ENV = var.from_env,  ENV_TYPE = var.env_type, ENV_NAME = var.env_name, PIPELINE_TYPE = var.pipeline_type, RUN_TESTS = var.run_integration_tests, RUNTIME_TYPE = var.runtime_type,RUNTIME_VERSION = var.runtime_version,TEMPLATE_FILE_PATH = var.template_file_path,S3_BUCKET = local.artifacts_bucket_name, CORALOGIX_SUBSCRIPTION=var.enable_coralogix_subscription ? templatefile("${path.module}/templates/subscribe_log_group.sh.tpl",{ENV_NAME = var.env_name,APP_NAME = var.app_name}) : "" })
 }
 
 resource "null_resource" "samconfig_generation" {

@@ -14,6 +14,10 @@ variable "pipeline_type" {
     type = string
 }
 
+variable "from_env" {
+    type = string
+}
+
 variable "run_integration_tests" {
     type = bool
 }
