@@ -64,6 +64,6 @@ phases:
             labels[$${#labels[@]}]="${ENV_NAME}:$NEW_VERSION"
           fi
           app_id=$(aws serverlessrepo list-applications --query 'Applications[?Name==`responses`].ApplicationId' --output text)
-          aws serverlessrepo update-application --application-id $app_id --labels $${labels[@]} --no-cli-pager
+          aws serverlessrepo update-application --application-id $app_id --labels $${labels[@]}
         fi
                 
