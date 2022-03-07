@@ -1,4 +1,8 @@
 version: 0.2
+env:
+  parameter-store:
+    USER: "/app/bb_user"  
+    PASS: "/app/bb_app_pass"
 phases:
   install:
     runtime-versions:
@@ -8,62 +12,40 @@ phases:
       - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
       - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
       - pip install jinja2-cli
+      - export COMMIT_ID=$(cat commit_id.txt)
   build:
-    on-failure: ABORT
     commands:
       - |
-        if [ "${PIPELINE_TYPE}" = "dev" ]; then
-          app_id=$(aws serverlessrepo list-applications --query 'Applications[?Name==`${APP_NAME}-${ENV_NAME}`].ApplicationId' --output text)
-          LATEST_VERSION=$(aws serverlessrepo list-application-versions --application-id $app_id --query 'Versions[].SemanticVersion' | jq last)
-          LATEST_VERSION="$${LATEST_VERSION%\"}"
-          export LATEST_VERSION="$${LATEST_VERSION#\"}"
-        elif [ "${PIPELINE_TYPE}" = "ci" ]; then
-          app_id=$(aws serverlessrepo list-applications --query 'Applications[?Name==`${APP_NAME}`].ApplicationId' --output text)
-          LATEST_VERSION=$(aws serverlessrepo list-application-versions --application-id $app_id --query 'Versions[].SemanticVersion' | jq last)
-          LATEST_VERSION="$${LATEST_VERSION%\"}"
-          export LATEST_VERSION="$${LATEST_VERSION#\"}"
+        if [ "${PIPELINE_TYPE}" != "cd" ]; then
+          aws s3 cp s3://s3-codepipeline-${APP_NAME}-${ENV_TYPE}/${FROM_ENV}/$COMMIT_ID.yaml template.yaml
         else
-          IFS=':'
-          declare -a labels=($(aws serverlessrepo list-applications --query 'Applications[?Name==`${APP_NAME}`].Labels[]' --output text))
-          for i in "$${labels[@]}"
-          do
-            read -a strarr <<< "$i"
-            if [ "$${strarr[0]}" = "${FROM_ENV}" ]; then
-              LATEST_VERSION="$${strarr[1]//_/.}" 
-              LATEST_VERSION="$${LATEST_VERSION%\"}"
-              export LATEST_VERSION="$${LATEST_VERSION#\"}"
-            fi
-          done
-          IFS=
+          aws s3 cp s3://s3-codepipeline-${APP_NAME}-${ENV_TYPE}/${FROM_ENV}/LATEST.yaml template.yaml
         fi
-        template_url=$(aws serverlessrepo create-cloud-formation-template --application-id $app_id --semantic-version $LATEST_VERSION --query 'TemplateUrl' --output text)
-        wget -O template.yaml $template_url
-        #check conditions and sed -i '/PreTraffic/d' template.yaml ? hooks for both
-        jinja2 $CODEBUILD_SRC_DIR/terraform/app/samconfig.toml.j2 -D PIPELINE_TYPE=${PIPELINE_TYPE} -D RUN_TESTS=${RUN_TESTS} -D env=${ENV_NAME} -D env_type=${ENV_TYPE} -o samconfig.toml
+        if [ "${PIPELINE_TYPE}" != "cd" ]; then
+          export COMMIT_ID=$(cat commit_id.txt)
+        else 
+          export COMMIT_ID="${FROM_ENV}"
+        fi
+        jinja2 $CODEBUILD_SRC_DIR/terraform/app/samconfig.toml.j2 -D env=${ENV_NAME} -D commit_id=$COMMIT_ID -D env_type=${ENV_TYPE} -o samconfig.toml
         sam deploy --template-file template.yaml --config-file samconfig.toml
   post_build:
-    on-failure: ABORT
     commands:
       - |
-        if [ "${PIPELINE_TYPE}" != "dev" ]; then
-          NEW_VERSION=$${LATEST_VERSION//./_}
-          NEW_LABEL="${ENV_NAME}:$NEW_VERSION"
-          declare -a labels=($(aws serverlessrepo list-applications --query 'Applications[?Name==`${APP_NAME}`].Labels[]' --output text))
-          if [[ " $${labels[@]} " == *"${FROM_ENV}"* ]]; then
-            IFS=':'
-            for i in "$${labels[@]}"
-            do
-              read -a strarr <<< "$i"
-              if [ "$${strarr[0]}" = "${FROM_ENV}" ]; then
-                IFS=
-                $${labels[i]}="${ENV_NAME}:$NEW_VERSION"
-              fi
-            done
-          else
-            IFS=
-            labels[$${#labels[@]}]="${ENV_NAME}:$NEW_VERSION"
-          fi
-          app_id=$(aws serverlessrepo list-applications --query 'Applications[?Name==`responses`].ApplicationId' --output text)
-          aws serverlessrepo update-application --application-id $app_id --labels $${labels[@]}
+        STATE="SUCCESSFUL"
+        DESCRIPTION="Build ended successfully"
+        if [ "$CODEBUILD_BUILD_SUCCEEDING" == "0" ]; then
+            STATE="FAILED"
+            DESCRIPTION="Build failed"
         fi
+      - |
+        REPORT_URL="https://console.aws.amazon.com/codesuite/codepipeline/pipelines/codepipeline-${APP_NAME}-${ENV_NAME}"
+        URL="https://api.bitbucket.org/2.0/repositories/tolunaengineering/${APP_NAME}/commit/$COMMIT_ID/statuses/build/"
+        curl --request POST --url $URL -u "$USER:$PASS" --header "Accept:application/json" --header "Content-Type:application/json" --data "{\"key\":\"${APP_NAME} Deploy\",\"state\":\"SUCCESSFUL\",\"description\":\"Deployment to ${ENV_NAME} succeeded\",\"url\":\"$REPORT_URL\"}"    
+        bash -c "if [ /"$CODEBUILD_BUILD_SUCCEEDING/" == /"0/" ]; then exit 1; fi"
+        if [ "${PIPELINE_TYPE}" != "dev" ]; then
+          echo "Deployed to ${ENV_NAME}"
+          aws s3 cp template.yaml s3://s3-codepipeline-${APP_NAME}-${ENV_TYPE}/${ENV_NAME}/LATEST.yaml          
+        fi
+
+
                 

@@ -27,14 +27,16 @@ phases:
           SRC_CHANGED=$(cat src_changed.txt)
           HEAD=$(cat head.txt)
         fi
-        export COMMIT_ID=$(cat commit_id.txt)
       - dotnet nuget add source https://pkgs.dev.azure.com/Toluna/_packaging/Toluna/nuget/v3/index.json --name Toluna-ADO --username $USER --password $PASS --store-password-in-clear-text
       - CODEBUILD_RESOLVED_SOURCE_VERSION="$CODEBUILD_RESOLVED_SOURCE_VERSION"
       - RUNTIME="${RUNTIME_TYPE}-${RUNTIME_VERSION}"
       - dotnet restore /p:Configuration=Release /p:Platform="Any CPU" ${SLN_PATH}
       - pip install jinja2-cli
-      - wget -O /usr/local/bin/semver https://raw.githubusercontent.com/toluna-terraform/scripts/master/release-management/semver
-      - chmod +x /usr/local/bin/semver
+      - export COMMIT_ID=$(cat commit_id.txt)
+      - export REPORT_URL="https://console.aws.amazon.com/codesuite/codebuild/projects?"
+      - |
+        URL="https://api.bitbucket.org/2.0/repositories/tolunaengineering/${APP_NAME}/commit/$COMMIT_ID/statuses/build/"
+        curl --request POST --url $URL -u "$BB_USER:$BB_PASS" --header "Accept:application/json" --header "Content-Type:application/json" --data "{\"key\":\"${APP_NAME} Build\",\"state\":\"INPROGRESS\",\"description\":\"${APP_NAME} Build is running\",\"url\":\"$REPORT_URL\"}"    
   build:
     commands:
       - |
@@ -42,7 +44,7 @@ phases:
           echo Build started on `date`
           mkdir -p $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/.aws-sam/build/ && cp $CODEBUILD_SRC_DIR/terraform/app/samconfig.toml.j2 $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/.aws-sam/build/
           cd $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/.aws-sam/build
-          jinja2 samconfig.toml.j2 -D PIPELINE_TYPE=${PIPELINE_TYPE} -D RUN_TESTS=${RUN_TESTS} -D env=${ENV_NAME} -D env_type=${ENV_TYPE} -o $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/samconfig.toml
+          jinja2 samconfig.toml.j2 -D env=${ENV_NAME} -D commit_id=$COMMIT_ID -D next_color=white -D env_type=${ENV_TYPE} -o $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/samconfig.toml
           VERSION_DATE=$(date '+%Y-%m-%d')
           if [ "${PIPELINE_TYPE}" != "dev" ]; then
             REPO_NAME="${APP_NAME}"
@@ -50,17 +52,25 @@ phases:
             REPO_NAME="${APP_NAME}-${ENV_NAME}"
           fi
           #lookup version
-          app_id=$(aws serverlessrepo list-applications --query "Applications[?Name=='$REPO_NAME'].ApplicationId" --output text)
-          LATEST_VERSION=$(aws serverlessrepo list-application-versions --application-id $app_id --query 'Versions[].SemanticVersion' | jq last)
-          LATEST_VERSION="$${LATEST_VERSION%\"}"
-          LATEST_VERSION="$${LATEST_VERSION#\"}"
-          export NEW_VERSION=$(semver bump minor $LATEST_VERSION)
           echo $CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID
-          jinja2 $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/template.yaml.j2 -D AUTHOR="Test Author" -D VERSION=$NEW_VERSION -D REPO_NAME=$REPO_NAME -D COMMIT_ID=$COMMIT_ID-$VERSION_DATE -D APP_NAME=${APP_NAME} -D ENV_NAME=${ENV_NAME} -D ENV_TYPE=${ENV_TYPE} -D PIPELINE_TYPE=${PIPELINE_TYPE} -o $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/template.yaml
+          jinja2 $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/template.yaml.j2 -D AUTHOR="Test Author" -D REPO_NAME=$REPO_NAME -D COMMIT_ID=$COMMIT_ID-$VERSION_DATE -D APP_NAME=${APP_NAME} -D ENV_NAME=${ENV_NAME} -D ENV_TYPE=${ENV_TYPE} -D PIPELINE_TYPE=${PIPELINE_TYPE} -o $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/template.yaml
           cd $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH} && sam build
           sam package -t $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/template.yaml  --s3-bucket s3-codepipeline-${APP_NAME}-${ENV_TYPE} --s3-prefix ${ENV_NAME} --force-upload --config-file $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/samconfig.toml --output-template-file $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/${ENV_NAME}_template.yaml
-          sam publish -t $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/${ENV_NAME}_template.yaml --config-file $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/samconfig.toml
+          aws s3 cp $CODEBUILD_SRC_DIR/${TEMPLATE_FILE_PATH}/${ENV_NAME}_template.yaml s3://s3-codepipeline-${APP_NAME}-${ENV_TYPE}/${ENV_NAME}/$COMMIT_ID.yaml
         fi  
+  post_build:
+    commands:
+    - |
+      STATE="SUCCESSFUL"
+      DESCRIPTION="Build ended successfully"
+      if [ "$CODEBUILD_BUILD_SUCCEEDING" == "0" ]; then
+          STATE="FAILED"
+          DESCRIPTION="Build failed"
+      fi
+    - | 
+      REPORT_URL="https://console.aws.amazon.com/codesuite/codepipeline/pipelines/codepipeline-${APP_NAME}-${ENV_NAME}" 
+      URL="https://api.bitbucket.org/2.0/repositories/tolunaengineering/${APP_NAME}/commit/$COMMIT_ID/statuses/build/"
+      curl --request POST --url $URL -u "$BB_USER:$BB_PASS" --header "Accept:application/json" --header "Content-Type:application/json" --data "{\"key\":\"${APP_NAME} Build\",\"state\":\"$STATE\",\"description\":\"${APP_NAME} $DESCRIPTION\",\"url\":\"$REPORT_URL\"}"  
 
 artifacts:
   files:
