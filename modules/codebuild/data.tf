@@ -87,7 +87,8 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
                 "iam:ListMFADeviceTags",
                 "iam:GetLoginProfile",
                 "iam:ListUserTags",
-                "codedeploy:*"
+                "codedeploy:*",
+                "sqs:*"
         ]
     resources = ["*"]
   }
