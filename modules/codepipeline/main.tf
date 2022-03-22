@@ -1,7 +1,6 @@
 locals {
-  repository_name       = split("/", var.source_repository)[1]
-  artifacts_bucket_name = "s3-codepipeline-${local.repository_name}-${var.env_name}"
-  codepipeline_name     = "codepipeline-${local.repository_name}-${var.env_name}"
+  artifacts_bucket_name = "s3-codepipeline-${var.app_name}-${var.env_name}"
+  codepipeline_name     = "codepipeline-${var.app_name}-${var.env_name}"
 }
 
 resource "aws_codepipeline" "codepipeline" {
