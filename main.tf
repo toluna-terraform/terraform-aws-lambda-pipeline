@@ -5,6 +5,7 @@ locals {
 module "code-pipeline" {
   source  = "./modules/codepipeline"
   env_name                 = var.env_name
+  app_name                 = var.app_name
   source_repository        = var.source_repository
   s3_bucket                = aws_s3_bucket.codepipeline_bucket.bucket
   code_build_projects      = [module.build-code-build.attributes.name,module.deploy-code-build.attributes.name]
