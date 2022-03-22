@@ -66,3 +66,16 @@ resource "null_resource" "samconfig_generation" {
     command = "jinja2 samconfig.toml.j2 -D env=${var.env_name} -o ../../${var.template_file_path}/samconfig.toml"
   }
 }
+
+resource "null_resource" "sam_delete" {
+  triggers = {
+    stackname = "${var.app_name}-${var.env_name}"
+    aws_profile = "${var.aws_profile}"
+  }
+
+  provisioner "local-exec" {
+    when       = destroy
+    on_failure = fail
+    command    = "aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}"
+  }
+} 
