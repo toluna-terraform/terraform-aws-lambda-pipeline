@@ -16,9 +16,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
     actions   = [
                 "iam:*",
-                "logs:CreateLogStream",
-                "logs:CreateLogGroup",
-                "logs:PutLogEvents",
+                "logs:*",
                 "apigateway:*",
                 "cloudformation:*",
                 "s3:*",
