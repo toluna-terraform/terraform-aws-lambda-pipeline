@@ -15,6 +15,7 @@ data "aws_iam_policy_document" "codebuild_assume_role_policy" {
 data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
     actions   = [
+                "iam:CreateRole",
                 "iam:GetPolicyVersion",
                 "iam:GetAccountPasswordPolicy",
                 "iam:ListRoleTags",
