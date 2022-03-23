@@ -20,6 +20,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
                 "apigateway:*",
                 "cloudformation:*",
                 "s3:*",
+                "ec2:*",
                 "ssm:*",
                 "lambda:*",
                 "codedeploy:*",
