@@ -11,4 +11,4 @@ phases:
     commands:
       - cp ${TEMPLATE_FILE_PATH}/samconfig.toml ${TEMPLATE_FILE_PATH}/.aws-sam/build/
       - cd ${TEMPLATE_FILE_PATH}/.aws-sam/build
-      - sam deploy --template-file template.json --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset
+      - sam deploy --template-file template.yaml --config-file samconfig.toml --no-confirm-changeset --no-fail-on-empty-changeset

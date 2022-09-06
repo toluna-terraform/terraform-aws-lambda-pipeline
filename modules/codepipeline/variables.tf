@@ -6,6 +6,10 @@ variable "source_repository" {
     type = string
 }
 
+variable "app_name" {
+    type = string
+}
+
 variable "trigger_branch" {
     type = string
 }

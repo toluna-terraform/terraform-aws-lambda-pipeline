@@ -1,7 +1,5 @@
 locals {
-  repository_name       = split("/", var.source_repository)[1]
-  artifacts_bucket_name = "s3-codepipeline-${local.repository_name}-${var.env_name}"
-  codepipeline_name     = "codepipeline-${local.repository_name}-${var.env_name}"
+  codepipeline_name     = "codepipeline-${var.app_name}-${var.env_name}"
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -66,26 +64,16 @@ resource "aws_codepipeline" "codepipeline" {
 
       }
     }
-    depends_on = [
-      aws_iam_role.codepipeline_role,
-      aws_iam_role_policy.codepipeline_policy
-    ]
   }
 
 resource "aws_iam_role" "codepipeline_role" {
   name               = "${local.codepipeline_name}-role"
   assume_role_policy = data.aws_iam_policy_document.codepipeline_assume_role_policy.json
-  depends_on = [
-    data.aws_iam_policy_document.codepipeline_assume_role_policy
-  ]
 }
 
 resource "aws_iam_role_policy" "codepipeline_policy" {
   name   = "codepipeline_policy"
   role   = aws_iam_role.codepipeline_role.id
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
-  depends_on = [
-    data.aws_iam_policy_document.codepipeline_role_policy
-  ]
 }
 
