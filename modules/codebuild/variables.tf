@@ -51,3 +51,8 @@ variable "privileged_mode" {
 variable "codedeploy_role" {
   type = string
 }
+
+variable "enable_jira_automation" {
+  type = bool
+  default = false
+}

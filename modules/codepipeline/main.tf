@@ -1,5 +1,5 @@
 locals {
-  codepipeline_name     = "codepipeline-${var.app_name}-${var.env_name}"
+  codepipeline_name = "codepipeline-${var.app_name}-${var.env_name}"
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -22,8 +22,8 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["source_output"]
 
       configuration = {
-        S3Bucket = "${var.s3_bucket}"
-        S3ObjectKey = "${var.env_name}/source_artifacts.zip" 
+        S3Bucket             = "${var.s3_bucket}"
+        S3ObjectKey          = "${var.env_name}/source_artifacts.zip"
         PollForSourceChanges = true
       }
     }
@@ -31,40 +31,113 @@ resource "aws_codepipeline" "codepipeline" {
 
   stage {
     name = "SAM-Build"
-      action {
-        name             = "SAM-Build"
-        category         = "Build"
-        owner            = "AWS"
-        provider         = "CodeBuild"
-        input_artifacts  = ["source_output"]
-        version          = "1"
-        output_artifacts = ["build_output"]
+    action {
+      name             = "SAM-Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["source_output"]
+      version          = "1"
+      output_artifacts = ["build_output"]
 
-        configuration = {
-          ProjectName = "codebuild-sam-build-${var.env_name}"
-        }
-
+      configuration = {
+        ProjectName = "codebuild-sam-build-${var.app_name}-${var.env_name}"
       }
+
     }
-  
+  }
 
   stage {
-    name = "SAM-Deploy"
-      action {
-        name             = "SAM-Deploy"
-        category         = "Build"
-        owner            = "AWS"
-        provider         = "CodeBuild"
-        input_artifacts  = ["build_output"]
-        version          = "1"
+    name = "Deploy"
 
+    action {
+      name            = "Deploy_New_Stack"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "CloudFormation"
+      input_artifacts = ["build_output"]
+      version         = "1"
+      run_order       = 1
+      configuration = {
+        ActionMode     = "REPLACE_ON_FAILURE"
+        Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
+        OutputFileName = "CreateStackOutput.json"
+        StackName      = "serverlessrepo-${var.app_name}-${var.env_name}-${var.env_color}"
+        #TemplateConfiguration = "build_output::sam-config.yaml"
+        TemplatePath       = "build_output::sam-${var.env_name}-templated.yaml"
+        ParameterOverrides = "${var.parameter_overrides}"
+        RoleArn            = aws_iam_role.codepipeline_role.arn
+      }
+    }
+
+    dynamic "action" {
+      for_each = var.run_integration_tests || var.run_stress_tests ? [1] : []
+      content {
+        name            = "Run_Tests"
+        category        = "Invoke"
+        owner           = "AWS"
+        provider        = "Lambda"
+        input_artifacts = ["build_output"]
+        version         = "1"
+        run_order       = 2
         configuration = {
-          ProjectName = "codebuild-sam-deploy-${var.env_name}"
+          FunctionName : "${var.app_name}-${var.env_type}-test-framework-manager"
+          "UserParameters" : "${var.env_name},${var.env_color}"
         }
+      }
+    }
 
+    action {
+      name            =  var.pipeline_type != "dev" ? "Wait_For_Merge" : "Shifting_to_new_stack"
+      category        = "Invoke"
+      owner           = "AWS"
+      provider        = "Lambda"
+      input_artifacts = ["build_output"]
+      version         = "1"
+      run_order       = 3
+      configuration = {
+        FunctionName : "${var.app_name}-${var.env_type}-merge-waiter"
+        "UserParameters" : "${var.env_name},${var.env_color}"
+      }
+    }
+
+    action {
+      name      = "Delete_Previouse_Stack"
+      category  = "Deploy"
+      owner     = "AWS"
+      provider  = "CloudFormation"
+      version   = "1"
+      run_order = 4
+      configuration = {
+        ActionMode     = "DELETE_ONLY"
+        Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
+        OutputFileName = "CreateStackOutput.json"
+        StackName      = var.env_color == "blue" ? "serverlessrepo-${var.app_name}-${var.env_name}-green" : "serverlessrepo-${var.app_name}-${var.env_name}-blue"
+        RoleArn        = aws_iam_role.codepipeline_role.arn
       }
     }
   }
+
+  stage {
+    name = "Post_Deploy"
+
+    action {
+      name             = "Post_Deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["build_output"]
+      version          = "1"
+      output_artifacts = ["post_output"]
+
+      configuration = {
+        ProjectName = "codebuild-post-sam-build-${var.app_name}-${var.env_name}"
+      }
+
+    }
+
+  }
+}
 
 resource "aws_iam_role" "codepipeline_role" {
   name               = "${local.codepipeline_name}-role"
