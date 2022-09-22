@@ -12,6 +12,7 @@ phases:
         - yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
         - yum -y install terraform consul
         - export CONSUL_HTTP_ADDR=https://consul-cluster-test.consul.$CONSUL_PROJECT_ID.aws.hashicorp.cloud
+        - printf "%s\n%s\nus-east-1\njson" | aws configure --profile ${aws_profile}
   build:
     commands:
       - |
