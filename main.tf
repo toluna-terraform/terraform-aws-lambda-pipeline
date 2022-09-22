@@ -10,7 +10,7 @@ module "code-pipeline" {
   env_color                = var.env_color
   source_repository        = var.source_repository
   s3_bucket                = data.aws_s3_bucket.codepipeline_bucket.bucket
-  code_build_projects      = [module.build-code-build.attributes.name, module.build-post-build.attributes.name]
+  code_build_projects      = [module.build-code-build.attributes.name, module.build-post-build.attributes.name,module.build-shift-traffic.attributes.name]
   code_deploy_applications = []
   trigger_branch           = var.trigger_branch
   trigger_events           = ["push", "merge"] // change same as ecs
@@ -69,6 +69,24 @@ module "build-post-build" {
       SLN_PATH           = var.solution_file_path,
       PIPELINE_TYPE      = var.pipeline_type,
       ENABLE_JIRA_AUTOMATION = var.enable_jira_automation
+  })
+}
+
+module "build-shift-traffic" {
+  source                                = "./modules/codebuild"
+  env_name                              = var.env_name
+  codebuild_name                        = "shift-stack-sam-build-${var.app_name}"
+  s3_bucket                             = "s3-codepipeline-${var.app_name}-${var.env_type}"
+  privileged_mode                       = true
+  environment_variables_parameter_store = {}
+  codedeploy_role                       = var.codedeploy_role
+  environment_variables                 = merge(var.environment_variables, { APPSPEC = "" })
+  enable_jira_automation                = var.enable_jira_automation
+
+  buildspec_file = templatefile("${path.module}/templates/shift_stack_buildspec.yml.tpl",
+    { app_name           = var.app_name,
+      env_name           = var.env_name, 
+      env_type           = var.env_type
   })
 }
 

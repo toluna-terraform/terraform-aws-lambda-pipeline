@@ -87,27 +87,45 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
 
-    action {
-      name            =  var.pipeline_type != "dev" ? "Wait_For_Merge" : "Shifting_to_new_stack"
-      category        = "Invoke"
-      owner           = "AWS"
-      provider        = "Lambda"
-      input_artifacts = ["build_output"]
-      version         = "1"
-      run_order       = 3
-      configuration = {
-        FunctionName : "${var.app_name}-${var.env_type}-merge-waiter"
-        "UserParameters" : "${var.env_name},${var.env_color}"
+    dynamic "action" {
+      for_each = var.pipeline_type != "dev" ? [1] : []
+      content {
+        name            = "Wait_For_Merge"
+        category        = "Invoke"
+        owner           = "AWS"
+        provider        = "Lambda"
+        input_artifacts = ["build_output"]
+        version         = "1"
+        run_order       = 3
+        configuration = {
+          FunctionName : "${var.app_name}-${var.env_type}-merge-waiter"
+          "UserParameters" : "${var.env_name},${var.env_color}"
+        }
       }
     }
 
+    dynamic "action" {
+      for_each = var.pipeline_type == "dev" ? [1] : []
+      content {
+        name             = "Shift-Traffic"
+        category         = "Build"
+        owner            = "AWS"
+        provider         = "CodeBuild"
+        input_artifacts  = ["source_output"]
+        version          = "1"
+        run_order       = 4
+        configuration = {
+          ProjectName = "codebuild-shift-stack-sam-build-${var.app_name}-${var.env_name}"
+        }
+      }
+    }
     action {
       name      = "Delete_Previouse_Stack"
       category  = "Deploy"
       owner     = "AWS"
       provider  = "CloudFormation"
       version   = "1"
-      run_order = 4
+      run_order = 5
       configuration = {
         ActionMode     = "DELETE_ONLY"
         Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
