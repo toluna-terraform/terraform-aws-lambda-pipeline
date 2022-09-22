@@ -14,6 +14,7 @@ phases:
       - PR_NUMBER=$(cat pr.txt)
       - SRC_CHANGED=$(cat src_changed.txt)
       - COMMIT_ID=$(cat commit_id.txt)
+      - TEMPLATE_DIR="$CODEBUILD_SRC_DIR/"
   build:
     commands:
       - |
