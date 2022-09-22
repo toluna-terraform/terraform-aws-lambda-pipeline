@@ -19,7 +19,7 @@ phases:
     commands:
       - |
         if [ "${PIPELINE_TYPE}" == "ci" ]; then  
-            zip -r DEPLOYED_VERSION.zip $TEMPLATE_DIR/sam-templated.yaml
+            zip -r DEPLOYED_VERSION.zip sam-templated.yaml
             aws s3 cp DEPLOYED_VERSION.zip s3://${S3_BUCKET}/${ENV}/
         fi
   post_build:
