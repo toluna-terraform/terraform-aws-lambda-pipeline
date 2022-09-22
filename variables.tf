@@ -81,3 +81,8 @@ variable "enable_jira_automation" {
   type = bool
   default = false
 }
+
+variable "is_managed_env" {
+  type = bool
+  default = false
+}

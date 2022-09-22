@@ -56,9 +56,9 @@ module "build-post-build" {
   enable_jira_automation                = var.enable_jira_automation
 
   buildspec_file = templatefile("${path.module}/templates/post_buildspec.yml.tpl",
-    { app_name           = var.app_name,
-      env_name           = var.env_name, 
-      env_type           = var.env_type,
+    { APP_NAME           = var.app_name,
+      ENV                = var.env_name, 
+      FROM_ENV = var.from_env,
       FROM_ENV           = var.from_env,
       RUNTIME_TYPE       = var.runtime_type,
       RUNTIME_VERSION    = var.runtime_version,
