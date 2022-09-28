@@ -86,7 +86,8 @@ module "build-shift-traffic" {
   buildspec_file = templatefile("${path.module}/templates/shift_stack_buildspec.yml.tpl",
     { app_name           = var.app_name,
       env_name           = var.env_name, 
-      env_type           = var.env_type
+      env_type           = var.env_type,
+      aws_profile        = var.aws_profile
   })
 }
 
