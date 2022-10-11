@@ -87,7 +87,7 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
 
-    dynamic "action" {
+    /* dynamic "action" {
       for_each = var.pipeline_type != "dev" ? [1] : []
       content {
         name            = "Wait_For_Merge"
@@ -133,7 +133,7 @@ resource "aws_codepipeline" "codepipeline" {
         StackName      = "serverlessrepo-${var.app_name}-${var.env_name}"
         RoleArn        = aws_iam_role.codepipeline_role.arn
       }
-    }
+    } */
   }
 
   stage {
