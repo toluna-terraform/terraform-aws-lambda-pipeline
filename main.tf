@@ -102,3 +102,20 @@ resource "null_resource" "sam_delete" {
     command    = "aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}"
   }
 }
+
+
+resource "null_resource" "detach_vpc" {
+  triggers = {
+    function    = "${var.app_name}--${var.env_name}",
+    aws_profile = "${var.aws_profile}"
+  }
+
+  provisioner "local-exec" {
+    when       = destroy
+    on_failure = continue
+    command    = "aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30"
+  }
+  depends_on = [
+    module.code-pipeline
+  ]
+}
