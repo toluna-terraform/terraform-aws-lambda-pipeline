@@ -16,7 +16,8 @@ data "aws_iam_policy_document" "codepipeline_assume_role_policy" {
         "codebuild.amazonaws.com", 
         "cloudformation.amazonaws.com", 
         "iam.amazonaws.com",
-        "ssm.amazonaws.com"
+        "ssm.amazonaws.com",
+        "route53.amazonaws.com"
         ]
     }
   }
@@ -53,7 +54,8 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
       "codedeploy:*",
       "codebuild:*",
       "serverlessrepo:*",
-      "sqs:*"
+      "sqs:*",
+      "route53:*"
     ]
     resources = ["*"]
   }

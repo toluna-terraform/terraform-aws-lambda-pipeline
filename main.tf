@@ -7,7 +7,6 @@ module "code-pipeline" {
   env_name                 = var.env_name
   app_name                 = var.app_name
   env_type                 = var.env_type
-  env_color                = var.env_color
   source_repository        = var.source_repository
   s3_bucket                = data.aws_s3_bucket.codepipeline_bucket.bucket
   code_build_projects      = [module.build-code-build.attributes.name, module.build-post-build.attributes.name,module.build-shift-traffic.attributes.name]

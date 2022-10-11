@@ -62,7 +62,7 @@ resource "aws_codepipeline" "codepipeline" {
         ActionMode     = "REPLACE_ON_FAILURE"
         Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
         OutputFileName = "CreateStackOutput.json"
-        StackName      = "serverlessrepo-${var.app_name}-${var.env_name}-${var.env_color}"
+        StackName      = "serverlessrepo-${var.app_name}-${var.env_name}"
         #TemplateConfiguration = "build_output::sam-config.yaml"
         TemplatePath       = "build_output::sam-${var.env_name}-templated.yaml"
         ParameterOverrides = "${var.parameter_overrides}"
@@ -82,7 +82,7 @@ resource "aws_codepipeline" "codepipeline" {
         run_order       = 2
         configuration = {
           FunctionName : "${var.app_name}-${var.env_type}-test-framework-manager"
-          "UserParameters" : "${var.env_name},${var.env_color}"
+          "UserParameters" : "${var.env_name}"
         }
       }
     }
@@ -99,7 +99,7 @@ resource "aws_codepipeline" "codepipeline" {
         run_order       = 3
         configuration = {
           FunctionName : "${var.app_name}-${var.env_type}-merge-waiter"
-          "UserParameters" : "${var.env_name},${var.env_color}"
+          "UserParameters" : "${var.env_name}"
         }
       }
     }
@@ -130,7 +130,7 @@ resource "aws_codepipeline" "codepipeline" {
         ActionMode     = "DELETE_ONLY"
         Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
         OutputFileName = "CreateStackOutput.json"
-        StackName      = var.env_color == "blue" ? "serverlessrepo-${var.app_name}-${var.env_name}-green" : "serverlessrepo-${var.app_name}-${var.env_name}-blue"
+        StackName      = "serverlessrepo-${var.app_name}-${var.env_name}"
         RoleArn        = aws_iam_role.codepipeline_role.arn
       }
     }
