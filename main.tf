@@ -9,7 +9,7 @@ module "code-pipeline" {
   env_type                 = var.env_type
   source_repository        = var.source_repository
   s3_bucket                = data.aws_s3_bucket.codepipeline_bucket.bucket
-  code_build_projects      = [module.build-code-build.attributes.name, module.build-post-build.attributes.name,module.build-shift-traffic.attributes.name]
+  code_build_projects      = [module.build-code-build.attributes.name, module.build-post-build.attributes.name]
   code_deploy_applications = []
   trigger_branch           = var.trigger_branch
   trigger_events           = ["push", "merge"] // change same as ecs
