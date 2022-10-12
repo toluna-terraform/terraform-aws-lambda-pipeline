@@ -71,25 +71,6 @@ module "build-post-build" {
   })
 }
 
-module "build-shift-traffic" {
-  source                                = "./modules/codebuild"
-  env_name                              = var.env_name
-  codebuild_name                        = "shift-stack-sam-build-${var.app_name}"
-  s3_bucket                             = "s3-codepipeline-${var.app_name}-${var.env_type}"
-  privileged_mode                       = true
-  environment_variables_parameter_store = {}
-  codedeploy_role                       = var.codedeploy_role
-  environment_variables                 = merge(var.environment_variables, { APPSPEC = "" })
-  enable_jira_automation                = var.enable_jira_automation
-
-  buildspec_file = templatefile("${path.module}/templates/shift_stack_buildspec.yml.tpl",
-    { app_name           = var.app_name,
-      env_name           = var.env_name, 
-      env_type           = var.env_type,
-      aws_profile        = var.aws_profile
-  })
-}
-
 resource "null_resource" "sam_delete" {
   triggers = {
     stackname   = "${var.app_name}-${var.env_name}"
