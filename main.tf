@@ -80,7 +80,7 @@ resource "null_resource" "sam_delete" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = fail
-    command    = "aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}; fi"
+    command    = "aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}"
   }
 }
 
@@ -95,7 +95,7 @@ resource "null_resource" "detach_vpc" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = continue
-    command    = "aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30; fi"
+    command    = "aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30"
   }
   depends_on = [
     module.code-pipeline
