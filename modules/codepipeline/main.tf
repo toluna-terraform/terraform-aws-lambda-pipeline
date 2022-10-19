@@ -103,3 +103,42 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
 }
 
+resource "aws_cloudformation_stack" "initial" {
+  name          = "serverlessrepo-${var.app_name}-${var.env_name}"
+  template_body = <<STACK
+{
+  "Parameters" : {
+  },
+  "Resources" : {
+    "ButterFunctionDeploymentGroup": {
+      "Type": "AWS::CodeDeploy::DeploymentGroup",
+      "Properties": {
+        "ApplicationName": {
+          "Ref": "ServerlessDeploymentApplication"
+        },
+        "AutoRollbackConfiguration": {
+          "Enabled": true,
+          "Events": [
+            "DEPLOYMENT_FAILURE",
+            "DEPLOYMENT_STOP_ON_ALARM",
+            "DEPLOYMENT_STOP_ON_REQUEST"
+          ]
+        },
+        "DeploymentConfigName": "CodeDeployDefault.LambdaAllAtOnce",
+        "DeploymentStyle": {
+          "DeploymentType": "BLUE_GREEN",
+          "DeploymentOption": "WITH_TRAFFIC_CONTROL"
+        },
+        "ServiceRoleArn": "${aws_iam_role.codepipeline_role.arn}"
+      }
+    },
+    "ServerlessDeploymentApplication": {
+      "Type": "AWS::CodeDeploy::Application",
+      "Properties": {
+        "ComputePlatform": "Lambda"
+      }
+    }
+  }
+}
+STACK
+}

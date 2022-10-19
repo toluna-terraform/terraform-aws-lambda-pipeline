@@ -13,6 +13,7 @@ data "aws_iam_policy_document" "codepipeline_assume_role_policy" {
       type        = "Service"
       identifiers = [
         "codepipeline.amazonaws.com", 
+        "codedeploy.amazonaws.com", 
         "codebuild.amazonaws.com", 
         "cloudformation.amazonaws.com", 
         "iam.amazonaws.com",
