@@ -75,13 +75,12 @@ resource "null_resource" "sam_delete" {
   triggers = {
     stackname   = "${var.app_name}-${var.env_name}",
     aws_profile = "${var.aws_profile}",
-    env_name = "${var.env_name}"
   }
 
   provisioner "local-exec" {
     when       = destroy
     on_failure = fail
-    command    = "workspace_count=$(terraform workspace list | grep -c ${self.triggers.env_name} ) && if [ \"$workspace_count\" -eq 1 ]; then aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}; fi"
+    command    = "aws cloudformation delete-stack --stack-name ${self.triggers.stackname} --profile ${self.triggers.aws_profile}; fi"
   }
 }
 
@@ -96,7 +95,7 @@ resource "null_resource" "detach_vpc" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = continue
-    command    = "workspace_count=$(terraform workspace list | grep -c ${self.triggers.env_name} ) && if [ \"$workspace_count\" -eq 1 ]; then aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30; fi"
+    command    = "aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30; fi"
   }
   depends_on = [
     module.code-pipeline
