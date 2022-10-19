@@ -1,0 +1,191 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: NodeJs Lambda, with public interface provided through API Gateway
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  Stage:
+    Type: String
+    Description: Stage in API gateway, e.g., dev, test, prod.
+    Default: devops
+  Envname:
+    Type: String
+    Description: Stage in API gateway, e.g., dev, test, prod.
+    Default: devops
+  Version:
+    Type: String
+    Default: v1
+  Subnets:
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: This param is overrided by Samconfig.toml file.
+  SecurityGroups:
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Description: This param is overrided by Samconfig.toml file.
+  SemanticVersion:
+    Type: String
+    Default: 0.0.1
+  DeployRole:
+    Type: String
+  RunIntegrationTests:
+    Type: String
+    Default: false
+  PipelineType:
+    Type: String
+    Default: dev
+  CodeUri:
+    Type: String
+    Default: helloworld/
+Conditions:
+  ProdDomainName:
+    Fn::Equals:
+    - Ref: Stage
+    - prod
+  RunTests:
+    Fn::Equals:
+    - Ref: RunIntegrationTests
+    - true
+  DontWaitForMerge:
+    Fn::Equals:
+    - Ref: PipelineType
+    - dev
+  WaitForMerge:
+    Fn::Not:
+    - Condition: DontWaitForMerge
+Globals:
+  Function:
+    CodeUri: ./
+    Timeout: 60
+    Runtime: nodejs14.x
+    VpcConfig:
+      SecurityGroupIds:
+        Ref: SecurityGroups
+      SubnetIds:
+        Ref: Subnets
+    Environment:
+      Variables:
+        STAGE:
+          Fn::Sub: ${Stage}
+        VERSION:
+          Fn::Sub: ${Version}
+Resources:
+  AccessLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /api/ButterService-${Envname}/accesslogs
+      RetentionInDays: 7
+  ButterAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name:
+        Fn::Join:
+        - '-'
+        - - butter
+          - Fn::Sub: ${Envname}
+      StageName:
+        Fn::Sub: ${Stage}
+      AccessLogSetting:
+        DestinationArn:
+          Fn::GetAtt:
+          - AccessLogs
+          - Arn
+        Format: $context.requestId
+      EndpointConfiguration:
+        Type: PRIVATE
+        VPCEndpointIds:
+        - Fn::Sub: '{{resolve:ssm:/infra/butter-${Envname}/vpce_id}}'
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+          - Effect: Deny
+            Principal: '*'
+            Action: execute-api:Invoke
+            Resource:
+              Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/*
+            Condition:
+              StringNotEquals:
+                aws:sourceVpce:
+                  Fn::Sub: '{{resolve:ssm:/infra/butter-${Envname}/vpce_id}}'
+          - Effect: Allow
+            Principal: '*'
+            Action: execute-api:Invoke
+            Resource:
+              Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:*/*/*/*
+  ApiGatewayPushToCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: Push logs to CloudWatch logs from API Gateway
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - apigateway.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+  ApiAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+        - ApiGatewayPushToCloudWatchRole
+        - Arn
+  ButterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: butter-${Envname}
+      Description: Butter HelloWorld Lambda
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Enabled: true
+        PassthroughCondition: true
+        Type: AllAtOnce
+        Role:
+          Fn::Sub: ${DeployRole}
+        Hooks:
+          PreTraffic:
+            Fn::If:
+            - RunTests
+            - Fn::If:
+              - ProdDomainName
+              - butter-prod-test-framework-manager
+              - butter-non-prod-test-framework-manager
+            - Fn::If:
+              - WaitForMerge
+              - Fn::If:
+                - ProdDomainName
+                - butter-prod-merge-waiter
+                - butter-non-prod-merge-waiter
+              - Ref: AWS::NoValue
+      CodeUri: s3://s3-codepipeline-butter-non-prod/95326fe11277b985cb609ddf8daef0c3
+      Handler: helloworld.handler
+      Runtime: nodejs14.x
+      MemorySize: 512
+      Timeout: 60
+      Events:
+        ProxyApiGreedy:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ButterAPI
+            Path: /{proxy+}
+            Method: ANY
+      Policies:
+      - AWSLambdaVPCAccessExecutionRole
+      - AWSLambdaBasicExecutionRole
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - lambda:InvokeFunction
+          Resource: '*'
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: Butter
+    Description: hello world poc application
+    Author: toluna
+    HomePageUrl: https://bitbucket.org/tolunaengineering/butter.git
+    SemanticVersion:
+      Fn::Sub: ${SemanticVersion}
+    SourceCodeUrl: https://bitbucket.org/tolunaengineering/butter.git
