@@ -103,42 +103,29 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   policy = data.aws_iam_policy_document.codepipeline_role_policy.json
 }
 
-resource "aws_cloudformation_stack" "initial" {
-  name          = "serverlessrepo-${var.app_name}-${var.env_name}"
-  template_body = <<STACK
-{
-  "Parameters" : {
-  },
-  "Resources" : {
-    "ButterFunctionDeploymentGroup": {
-      "Type": "AWS::CodeDeploy::DeploymentGroup",
-      "Properties": {
-        "ApplicationName": {
-          "Ref": "ServerlessDeploymentApplication"
-        },
-        "AutoRollbackConfiguration": {
-          "Enabled": true,
-          "Events": [
-            "DEPLOYMENT_FAILURE",
-            "DEPLOYMENT_STOP_ON_ALARM",
-            "DEPLOYMENT_STOP_ON_REQUEST"
-          ]
-        },
-        "DeploymentConfigName": "CodeDeployDefault.LambdaAllAtOnce",
-        "DeploymentStyle": {
-          "DeploymentType": "BLUE_GREEN",
-          "DeploymentOption": "WITH_TRAFFIC_CONTROL"
-        },
-        "ServiceRoleArn": "${aws_iam_role.codepipeline_role.arn}"
-      }
-    },
-    "ServerlessDeploymentApplication": {
-      "Type": "AWS::CodeDeploy::Application",
-      "Properties": {
-        "ComputePlatform": "Lambda"
-      }
-    }
+resource "null_resource" "create_package" {
+  triggers = {
+    bucket    = "${var.s3_bucket}",
+    aws_profile = "${var.app_name}-${var.env_type}",
+    env_name    = "${var.env_name}"
+    template_file = "${var.template_file}"
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    on_failure = fail
+    when = create
+    command    = "aws cloudformation package --template-file ${self.triggers.template_file} --s3-bucket ${self.triggers.bucket} --output-template-file ${path.module}/templates/package.yaml --output yaml --profile ${self.triggers.aws_profile} && sleep 10"
   }
 }
-STACK
+
+resource "aws_cloudformation_stack" "initial" {
+  name          = "serverlessrepo-${var.app_name}-${var.env_name}"
+  iam_role_arn = aws_iam_role.codepipeline_role.arn
+  capabilities = ["CAPABILITY_AUTO_EXPAND","CAPABILITY_IAM"]
+  parameters = var.stack_parameters
+  template_body = file("${path.module}/templates/package.yaml")
+  depends_on = [
+    null_resource.create_package
+  ]
 }

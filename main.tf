@@ -19,6 +19,8 @@ module "code-pipeline" {
   pipeline_type            = var.pipeline_type
   run_stress_tests         = var.run_stress_tests
   run_integration_tests    = var.run_integration_tests
+  template_file            = "../../${var.template_file_path}/template.yaml"
+  stack_parameters         = var.stack_parameters
 }
 
 module "build-code-build" {

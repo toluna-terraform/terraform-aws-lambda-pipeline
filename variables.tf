@@ -82,3 +82,10 @@ variable "is_managed_env" {
   type = bool
   default = false
 }
+
+
+variable "stack_parameters" {
+ type = map(string)
+ default = {
+ }
+}

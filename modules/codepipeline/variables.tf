@@ -49,3 +49,12 @@ variable "run_integration_tests" {
 variable "run_stress_tests" {
   type = bool
 }
+
+variable "template_file" {
+}
+
+variable "stack_parameters" {
+ type = map(string)
+ default = {
+ }
+}
