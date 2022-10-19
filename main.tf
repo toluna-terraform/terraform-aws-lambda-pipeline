@@ -56,8 +56,8 @@ module "build-post-build" {
 
   buildspec_file = templatefile("${path.module}/templates/post_buildspec.yml.tpl",
     { APP_NAME           = var.app_name,
-      ENV                = var.env_name, 
-      FROM_ENV = var.from_env,
+      ENV                = split("-", var.env_name)[0], 
+      FROM_ENV           = var.from_env,
       FROM_ENV           = var.from_env,
       RUNTIME_TYPE       = var.runtime_type,
       RUNTIME_VERSION    = var.runtime_version,
