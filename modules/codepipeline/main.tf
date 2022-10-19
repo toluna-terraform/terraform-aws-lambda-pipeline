@@ -62,8 +62,8 @@ resource "aws_codepipeline" "codepipeline" {
         ActionMode     = "REPLACE_ON_FAILURE"
         Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
         OutputFileName = "CreateStackOutput.json"
-        StackName      = "serverlessrepo-${var.app_name}-${split("-",var.env_name)[0]}"
-        #TemplateConfiguration = "build_output::sam-config.yaml"
+        #StackName      = "serverlessrepo-${var.app_name}-${split("-",var.env_name)[0]}"
+        StackName      = "serverlessrepo-${var.app_name}-${var.env_name}"
         TemplatePath       = "build_output::sam-${var.env_name}-templated.yaml"
         ParameterOverrides = "${var.parameter_overrides}"
         RoleArn            = aws_iam_role.codepipeline_role.arn
