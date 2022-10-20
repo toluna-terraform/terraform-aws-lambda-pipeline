@@ -128,4 +128,7 @@ resource "aws_cloudformation_stack" "initial" {
   depends_on = [
     null_resource.create_package,aws_iam_role.codepipeline_role,aws_iam_role_policy.codepipeline_policy
   ]
+  lifecycle {
+    ignore_changes = template_body
+  }
 }
