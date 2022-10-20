@@ -85,7 +85,19 @@ resource "null_resource" "detach_vpc" {
   provisioner "local-exec" {
     when       = destroy
     on_failure = continue
-    command    = "aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile} && sleep 30"
+    command    = <<EOT
+      aws lambda update-function-configuration --function-name ${self.triggers.function} --vpc-config 'SubnetIds=[],SecurityGroupIds=[]' --profile ${self.triggers.aws_profile}
+      sleep 30
+      declare -a LAMBDA_VERSIONS=($(aws lambda list-versions-by-function --function-name ${self.triggers.function} --profile ${self.triggers.aws_profile} --query 'Versions[].Version' --output text))
+      for i in "$${LAMBDA_VERSIONS[@]}"
+      do
+        ver=$${i##*( )}
+        ver=$${ver%%*()}
+        echo "echo deleting $ver"
+        aws lambda delete-function --function-name ${self.triggers.function}:$ver --profile ${self.triggers.aws_profile} || aws lambda delete-function --function-name ${self.triggers.function} --profile ${self.triggers.aws_profile} || exit 0
+      done
+      exit 0
+    EOT
   }
   depends_on = [
     module.code-pipeline
