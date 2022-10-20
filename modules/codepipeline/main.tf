@@ -115,7 +115,7 @@ resource "null_resource" "create_package" {
   provisioner "local-exec" {
     on_failure = fail
     when = create
-    command    = "aws cloudformation package --template-file ${self.triggers.template_file} --s3-bucket ${self.triggers.bucket} --output-template-file ${path.module}/templates/package.yaml --output yaml --profile ${self.triggers.aws_profile} && sleep 10"
+    command    = "aws cloudformation package --template-file ${self.triggers.template_file} --s3-bucket ${self.triggers.bucket} --output-template-file ${path.module}/templates/package.yaml --profile ${self.triggers.aws_profile} && sleep 10"
   }
 }
 
