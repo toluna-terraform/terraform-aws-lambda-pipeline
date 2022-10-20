@@ -126,6 +126,6 @@ resource "aws_cloudformation_stack" "initial" {
   parameters = var.stack_parameters
   template_body = file("${path.module}/templates/package.yaml")
   depends_on = [
-    null_resource.create_package
+    null_resource.create_package,aws_iam_role.codepipeline_role,aws_iam_role_policy.codepipeline_policy
   ]
 }
