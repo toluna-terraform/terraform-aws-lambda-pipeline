@@ -20,6 +20,7 @@ module "code-pipeline" {
   run_stress_tests         = var.run_stress_tests
   run_integration_tests    = var.run_integration_tests
   template_file            = "../../${var.template_file_path}/template.yaml"
+  template_path            = "${var.template_file_path}"
   stack_parameters         = var.stack_parameters
 }
 

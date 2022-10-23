@@ -53,6 +53,9 @@ variable "run_stress_tests" {
 variable "template_file" {
 }
 
+variable "template_path" {
+}
+
 variable "stack_parameters" {
  type = map(string)
  default = {
