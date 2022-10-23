@@ -64,7 +64,7 @@ resource "aws_codepipeline" "codepipeline" {
         OutputFileName = "CreateStackOutput.json"
         #StackName      = "serverlessrepo-${var.app_name}-${split("-",var.env_name)[0]}"
         StackName      = "serverlessrepo-${var.app_name}-${var.env_name}"
-        TemplatePath       = "build_output::sam-${var.env_name}-templated.yaml"
+        TemplatePath       = "build_output::sam-${split("-",var.env_name)[0]}-templated.yaml"
         ParameterOverrides = "${var.parameter_overrides}"
         RoleArn            = aws_iam_role.codepipeline_role.arn
       }
