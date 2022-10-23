@@ -14,12 +14,13 @@ phases:
       - PR_NUMBER=$(cat pr.txt)
       - SRC_CHANGED=$(cat src_changed.txt)
       - COMMIT_ID=$(cat commit_id.txt)
-      - NEW_VERSION=$(cat new_version.txt)
+      - TEMPLATE_DIR="$CODEBUILD_SRC_DIR/"
   build:
     commands:
       - |
         if [ "${PIPELINE_TYPE}" == "ci" ]; then  
-          sam publish --template ${TEMPLATE_FILE_PATH}/sam-${ENV}-templated.yaml --semantic-version $NEW_VERSION
+            zip -r DEPLOYED_VERSION.zip sam-${ENV}-templated.yaml
+            aws s3 cp DEPLOYED_VERSION.zip s3://${S3_BUCKET}/${ENV}/
         fi
   post_build:
     commands:
