@@ -14,13 +14,12 @@ phases:
       - PR_NUMBER=$(cat pr.txt)
       - SRC_CHANGED=$(cat src_changed.txt)
       - COMMIT_ID=$(cat commit_id.txt)
-      - TEMPLATE_DIR="$CODEBUILD_SRC_DIR/"
       - NEW_VERSION=$(cat new_version.txt)
   build:
     commands:
       - |
         if [ "${PIPELINE_TYPE}" == "ci" ]; then  
-          sam publish --template ${TEMPLATE_DIR}/sam-${ENV}-templated.yaml --semantic-version $NEW_VERSION
+          sam publish --template ${TEMPLATE_FILE_PATH}/sam-${ENV}-templated.yaml --semantic-version $NEW_VERSION
         fi
   post_build:
     commands:
