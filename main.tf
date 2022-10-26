@@ -38,7 +38,7 @@ module "build-code-build" {
     { APP_NAME           = var.app_name,
       ENV                = var.env_name, 
       ENV_NAME           = split("-",var.env_name)[0],
-      AWS_PROFILE        = var.aws_profile
+      AWS_PROFILE        = var.aws_profile,
       FROM_ENV           = var.from_env,
       RUNTIME_TYPE       = var.runtime_type,
       RUNTIME_VERSION    = var.runtime_version,
