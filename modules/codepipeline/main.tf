@@ -13,11 +13,12 @@ resource "aws_codepipeline" "codepipeline" {
 
   stage {
     name = "Source"
+
     action {
-      name             = "Download_Merged_Sources"
+      name             = "Source"
       category         = "Source"
       owner            = "AWS"
-      provider         = "S3"
+      provider         = "CodeStarSourceConnection"
       version          = "1"
       output_artifacts = ["source_output"]
 
