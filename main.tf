@@ -1,6 +1,5 @@
 locals {
   artifacts_bucket_name = "s3-codepipeline-${var.app_name}-${var.env_type}"
-  artifacts_bucket_name = "s3-codepipeline-${var.app_name}-${var.env_name}"
 }
 
 
