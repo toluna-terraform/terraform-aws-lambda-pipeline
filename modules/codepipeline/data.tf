@@ -11,7 +11,15 @@ data "aws_iam_policy_document" "codepipeline_assume_role_policy" {
     actions = ["sts:AssumeRole"]
     principals {
       type        = "Service"
-      identifiers = ["codepipeline.amazonaws.com", "codebuild.amazonaws.com"]
+      identifiers = [
+        "codepipeline.amazonaws.com", 
+        "codedeploy.amazonaws.com", 
+        "codebuild.amazonaws.com", 
+        "cloudformation.amazonaws.com", 
+        "iam.amazonaws.com",
+        "ssm.amazonaws.com",
+        "route53.amazonaws.com"
+        ]
     }
   }
 }
@@ -36,8 +44,19 @@ data "aws_iam_policy_document" "codepipeline_role_policy" {
   }
   statement {
     actions = [
-      "codebuild:BatchGetBuilds",
-      "codebuild:StartBuild"
+      "iam:*",
+      "logs:*",
+      "apigateway:*",
+      "cloudformation:*",
+      "s3:*",
+      "ec2:*",
+      "ssm:*",
+      "lambda:*",
+      "codedeploy:*",
+      "codebuild:*",
+      "serverlessrepo:*",
+      "sqs:*",
+      "route53:*"
     ]
     resources = ["*"]
   }

@@ -14,21 +14,19 @@ data "aws_iam_policy_document" "codebuild_assume_role_policy" {
 
 data "aws_iam_policy_document" "codebuild_role_policy" {
   statement {
-    actions = [
-      "iam:*",
-      "apigateway:*",
-      "ssm:*",
-      "sqs:*",
-      "s3:*",
-      "logs:*",
-      "ssm:*",
-      "lambda:*",
-      "codedeploy:*",
-      "ec2:*",
-      "cloudformation:*",
-      "acm:*",
-      "route53:*"
-    ]
+    actions   = [
+                "iam:*",
+                "logs:*",
+                "apigateway:*",
+                "cloudformation:*",
+                "s3:*",
+                "ec2:*",
+                "ssm:*",
+                "lambda:*",
+                "codedeploy:*",
+                "serverlessrepo:*",
+                "sqs:*"
+        ]
     resources = ["*"]
   }
 }

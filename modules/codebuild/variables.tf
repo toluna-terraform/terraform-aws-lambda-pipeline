@@ -47,3 +47,12 @@ variable "privileged_mode" {
     default     = true
     description = "set to true if building a docker"
 }
+
+variable "codedeploy_role" {
+  type = string
+}
+
+variable "enable_jira_automation" {
+  type = bool
+  default = false
+}

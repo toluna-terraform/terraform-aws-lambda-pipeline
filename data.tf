@@ -1,5 +1,5 @@
 data "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = aws_s3_bucket.codepipeline_bucket.bucket
+  bucket = local.artifacts_bucket_name
 }
 
 data "aws_ssm_parameter" "ado_password" {
