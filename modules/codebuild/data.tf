@@ -27,7 +27,9 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "ec2:*",
       "cloudformation:*",
       "acm:*",
-      "route53:*"
+      "route53:*",
+      "codebuild:*",
+      "events:DescribeRule"
     ]
     resources = ["*"]
   }

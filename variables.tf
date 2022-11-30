@@ -40,3 +40,11 @@ variable "solution_file_path" {
 variable "aws_profile" {
   type = string
 }
+
+variable "test_report_group" {
+  type = string
+}
+
+variable "coverage_report_group" {
+  type = string
+}
