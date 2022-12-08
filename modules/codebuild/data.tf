@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "codebuild_role_policy" {
       "acm:*",
       "route53:*",
       "codebuild:*",
-      "events:DescribeRule"
+      "events:*"
     ]
     resources = ["*"]
   }
